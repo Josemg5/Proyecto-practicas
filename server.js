@@ -3,9 +3,9 @@ const sqlite3 = require('sqlite3').verbose();
 const app = express();
 const port = 3000;
 
-app.use(express.json()); // Middleware para parsear JSON en el cuerpo de las peticiones
+app.use(express.json()); // Middleware para parsear JSON
 
-const db = new sqlite3.Database('./db_tienda.db', (err) => {
+const db = new sqlite3.Database('db_tienda.db', (err) => {
     if (err) {
         console.error('Error al conectar a la base de datos:', err.message);
     } else {
@@ -15,7 +15,7 @@ const db = new sqlite3.Database('./db_tienda.db', (err) => {
 
 // --- Rutas para Categorías ---
 
-// GET para obtener todas las categorías
+// GET: obtener todas las categorías
 app.get('/api/categorias', (req, res) => {
     db.all('SELECT id, nombre, descripcion FROM categorias', [], (err, rows) => {
         if (err) {
@@ -26,7 +26,7 @@ app.get('/api/categorias', (req, res) => {
     });
 });
 
-// POST para crear una nueva categoría
+// POST: crear una nueva categoría
 app.post('/api/categorias', (req, res) => {
     const { nombre, descripcion } = req.body;
     if (!nombre) {
@@ -41,11 +41,11 @@ app.post('/api/categorias', (req, res) => {
     });
 });
 
+// --- Rutas para Componentes ---
 
-
-// GET para obtener todos los componentes
+// GET: obtener todos los componentes
 app.get('/api/componentes', (req, res) => {
-    db.all('SELECT id, nombre, categoria_id, technical_description, brand_model, price FROM componentes', [], (err, rows) => {
+    db.all('SELECT id, nombre, id_categoria, descripcion_tecnica, marca_modelo, precio FROM componentes', [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
@@ -54,20 +54,33 @@ app.get('/api/componentes', (req, res) => {
     });
 });
 
-// POST para crear un nuevo componente
+// POST: crear un nuevo componente
 app.post('/api/componentes', (req, res) => {
-    const { nombre, categoria_id, technical_description, brand_model, price } = req.body;
-    if (!nombre || !categoria_id) {
+    const { nombre, id_categoria, descripcion_tecnica, marca_modelo, precio } = req.body;
+
+    if (!nombre || !id_categoria) {
         return res.status(400).json({ error: 'El nombre y la categoría son obligatorios.' });
     }
-    db.run('INSERT INTO componentes (nombre, categoria_id, technical_description, brand_model, price) VALUES (?, ?, ?, ?, ?)',
-        [nombre, categoria_id, technical_description, brand_model, price], function(err) {
+
+    db.run(
+        'INSERT INTO componentes (nombre, id_categoria, descripcion_tecnica, marca_modelo, precio) VALUES (?, ?, ?, ?, ?)',
+        [nombre, id_categoria, descripcion_tecnica, marca_modelo, precio],
+        function(err) {
             if (err) {
                 res.status(500).json({ error: err.message });
                 return;
             }
-            res.status(201).json({ id: this.lastID, nombre, categoria_id, technical_description, brand_model, price, message: 'Componente creado con éxito.' });
-        });
+            res.status(201).json({
+                id: this.lastID,
+                nombre,
+                id_categoria,
+                descripcion_tecnica,
+                marca_modelo,
+                precio,
+                message: 'Componente creado con éxito.'
+            });
+        }
+    );
 });
 
 app.listen(port, () => {
