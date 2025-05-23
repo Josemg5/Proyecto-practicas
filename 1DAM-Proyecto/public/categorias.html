@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menú Electrónica</title>
+  <style>
+    body {
+      background-image: url('imagen_fondo.png');
+      background-repeat: repeat;
+      background-size: auto;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('imagen_fondo.png');
+      background-repeat: repeat;
+      background-size: auto;
+      filter: blur(1.5px) brightness(0.7);
+      z-index: -1;
+    }
+
+    h1, label {
+      color: white;
+      text-shadow: 1px 1px 3px black;
+      text-align: center;
+    }
+
+    form {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 8px;
+      font-size: 1em;
+    }
+
+    table {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      color: #000;
+    }
+
+    .opciones {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #000000;
+    }
+
+    th{
+      color: #000000;
+    }
+
+    button {
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+
+    .opciones button {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .opciones button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .galeria {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .categoria {
+      width: 180px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      background-color: rgba(255, 255, 255, 0.85);
+      color: black;
+    }
+
+    .categoria:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .categoria img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .categoria p {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .volver {
+      text-align: center;
+      margin: 40px 0;
+    }
+
+    .volver button {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .volver button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Categorías de Componentes Electrónicos</h1>
+
+  <div class="opciones">
+    <button onclick="window.location.href='componentes.html'">Ir a Componentes</button>
+  </div>
+
+  <form id="formulario">
+    <input type="text" id="nombre" placeholder="Nombre de la categoria" required>
+    <button type="submit">Añadir</button>
+  </form>
+
+ <table>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Nombre</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tabla">
+    <!-- Aquí se insertan los datos -->
+  </tbody>
+</table>
+
+  <div class="volver">
+    <button onclick="window.location.href='indice_proy.html'">Volver al Índice</button>
+  </div>
+
+<script>
+  const tabla = document.getElementById("tabla");
+  const formulario = document.getElementById("formulario");
+
+  // Cargar categorías al iniciar
+  window.addEventListener("DOMContentLoaded", cargarCategorias);
+
+  async function cargarCategorias() {
+    try {
+      const res = await fetch("http://localhost:3000/api/categorias");
+      const categorias = await res.json();
+      renderizarCategorias(categorias);
+    } catch (error) {
+      console.error("Error al cargar categorías:", error);
+      tabla.innerHTML = `<tr><td colspan="3">Error al conectar con el servidor</td></tr>`;
+    }
+  }
+
+  // Formulario POST para añadir nueva categoría (solo nombre)
+  formulario.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nombre = document.getElementById("nombre").value.trim();
+
+    if (!nombre) {
+      alert("El campo nombre es obligatorio.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/api/categorias", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre })
+      });
+
+      if (!res.ok) throw new Error("Error al insertar categoría");
+
+      cargarCategorias();
+      formulario.reset();
+    } catch (error) {
+      console.error("❌ Error al guardar categoría:", error);
+      alert("Error al guardar la categoría.");
+    }
+  });
+
+  // Mostrar tabla
+  function renderizarCategorias(categorias) {
+    tabla.innerHTML = "";
+
+    categorias.forEach(cat => {
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td>${cat.id}</td>
+        <td>${cat.nombre}</td>
+        <td class="acciones">
+          <button onclick="editarCategoria(${cat.id})">Editar</button>
+          <button onclick="eliminarCategoria(${cat.id})">Eliminar</button>
+        </td>
+      `;
+      tabla.appendChild(fila);
+    });
+  }
+
+  // PUT: actualizar categoría (solo nombre)
+  async function editarCategoria(id) {
+    const nuevoNombre = prompt("Nuevo nombre:");
+
+    if (!nuevoNombre) {
+      alert("El nombre es obligatorio.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre: nuevoNombre })
+      });
+
+      const texto = await res.text(); // respuesta del backend
+
+      if (!res.ok) throw new Error(texto);
+
+      alert("✅ Categoría actualizada correctamente");
+      cargarCategorias();
+    } catch (err) {
+      console.error("❌ Error al actualizar categoría:", err.message);
+      alert("Error: " + err.message);
+    }
+  }
+
+  // DELETE: eliminar categoría
+  async function eliminarCategoria(id) {
+    const confirmar = confirm("¿Estás seguro de que quieres eliminar esta categoría?");
+    if (!confirmar) return;
+
+    try {
+      const res = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!res.ok) throw new Error("Error al eliminar");
+
+      cargarCategorias();
+    } catch (err) {
+      console.error("❌ Error al eliminar categoría:", err);
+      alert("Error al eliminar la categoría.");
+    }
+  }
+</script>
+</body>
+</html>

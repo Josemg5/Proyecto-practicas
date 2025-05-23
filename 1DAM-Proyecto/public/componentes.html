@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menú Electrónica</title>
+  <style>
+    body {
+      background-image: url('imagen_fondo.png');
+      background-repeat: repeat;
+      background-size: auto;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('imagen_fondo.png');
+      background-repeat: repeat;
+      background-size: auto;
+      filter: blur(1.5px) brightness(0.7);
+      z-index: -1;
+    }
+
+    h1, label {
+      color: white;
+      text-shadow: 1px 1px 3px black;
+      text-align: center;
+    }
+
+    form {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 8px;
+      font-size: 1em;
+    }
+
+    table {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      color: #000;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #000000;
+    }
+
+    th{
+      color: #000000;
+    }
+
+    button {
+      padding: 8px 15px;
+      cursor: pointer;
+    }
+
+    .opciones {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .opciones button {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .opciones button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .galeria {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .categoria {
+      width: 180px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+      background-color: rgba(255, 255, 255, 0.85);
+      color: black;
+    }
+
+    .categoria:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .categoria img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+
+    .categoria p {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .volver {
+      text-align: center;
+      margin: 40px 0;
+    }
+
+    .volver button {
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .volver button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Componentes Electrónicos</h1>
+
+  <div class="opciones">
+    <button onclick="window.location.href='categorias.html'">Ir a Categorías</button>
+  </div>
+
+  <form id="formulario">
+    <input type="text" id="nombre" placeholder="Nombre del componente" required>
+    <input type="text" id="descripcion-tecnica" placeholder="Descripcion-tecnica" required>
+    <input type="text" id="marca-modelo" placeholder="Marca-modelo" required>
+    <input type="number" id="precio" placeholder="Precio" min="0" required>
+    <input type="number" id="categoriaId" placeholder="Id de la categoria" min="0" required>
+    <button type="submit">Añadir</button>
+  </form>
+
+  <table>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Nombre</th>
+      <th>Descripción técnica</th>
+      <th>Marca/Modelo</th>
+      <th>Precio</th>
+      <th>Categoria</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody id="tabla">
+    <!-- Aquí se añade dinámicamente -->
+  </tbody>
+</table>
+
+  <div class="volver">
+    <button onclick="window.location.href='indice_proy.html'">Volver al Índice</button>
+  </div>
+
+<script>
+  const tabla = document.getElementById("tabla");
+  const formulario = document.getElementById("formulario");
+  let categorias = [];
+
+  // Al cargar la página
+  window.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const resCategorias = await fetch("http://localhost:3000/api/categorias");
+      categorias = await resCategorias.json();
+
+      const resComponentes = await fetch("http://localhost:3000/api/componentes");
+      const componentes = await resComponentes.json();
+
+      renderizarTabla(componentes);
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+      tabla.innerHTML = `<tr><td colspan="7">Error al conectar con el servidor</td></tr>`;
+    }
+  });
+
+  // Enviar nuevo componente
+  formulario.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const nombre = document.getElementById("nombre").value.trim();
+    const descripcion_tecnica = document.getElementById("descripcion-tecnica").value.trim();
+    const marca_modelo = document.getElementById("marca-modelo").value.trim();
+    const precio = parseFloat(document.getElementById("precio").value);
+    const categoriaId = parseInt(document.getElementById("categoriaId").value);
+
+    if (!nombre || !descripcion_tecnica || !marca_modelo || isNaN(precio) || isNaN(categoriaId)) {
+      alert("Por favor, completa todos los campos correctamente.");
+      return;
+    }
+
+    try {
+      const respuesta = await fetch("http://localhost:3000/api/componentes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, descripcion_tecnica, marca_modelo, precio, categoriaId })
+      });
+
+      if (!respuesta.ok) throw new Error("Error en el servidor");
+
+      const nuevosComponentes = await (await fetch("http://localhost:3000/api/componentes")).json();
+      renderizarTabla(nuevosComponentes);
+      formulario.reset();
+    } catch (err) {
+      console.error("Error al enviar:", err);
+      alert("Error al guardar el componente.");
+    }
+  });
+
+  function obtenerNombreCategoria(id) {
+    const categoria = categorias.find(cat => Number(cat.id) === Number(id));
+    return categoria ? categoria.nombre : "Desconocida";
+  }
+
+  function renderizarTabla(componentes) {
+    tabla.innerHTML = "";
+
+    componentes.forEach(comp => {
+      const fila = document.createElement("tr");
+      fila.innerHTML = `
+        <td>${comp.id}</td>
+        <td>${comp.nombre}</td>
+        <td>${comp.descripcion_tecnica}</td>
+        <td>${comp.marca_modelo}</td>
+        <td>${comp.precio} €</td>
+        <td>${obtenerNombreCategoria(comp.categoriaId)}</td>
+        <td class="acciones">
+          <button onclick="actualizar(${comp.id})">Editar</button>
+          <button onclick="eliminar(${comp.id})">Eliminar</button>
+        </td>
+      `;
+      tabla.appendChild(fila);
+    });
+  }
+
+// PUT: actualizar todos los campos
+async function actualizar(id) {
+  const nombre = prompt("Nuevo nombre:");
+  const descripcion = prompt("Nueva descripción técnica:");
+  const marca = prompt("Nueva marca/modelo:");
+  const precioStr = prompt("Nuevo precio:");
+  const categoriaIdStr = prompt("Nuevo ID de categoría:");
+
+  // Validaciones básicas
+  if (!nombre || !descripcion || !marca || !precioStr || !categoriaIdStr) {
+    alert("Todos los campos son obligatorios.");
+    return;
+  }
+
+  const precio = parseFloat(precioStr);
+  const categoriaId = parseInt(categoriaIdStr);
+
+  if (isNaN(precio) || isNaN(categoriaId)) {
+    alert("Precio e ID de categoría deben ser números válidos.");
+    return;
+  }
+
+  try {
+    const respuesta = await fetch(`http://localhost:3000/api/componentes/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre,
+        descripcion_tecnica: descripcion,
+        marca_modelo: marca,
+        precio,
+        categoriaId
+      })
+    });
+
+    if (!respuesta.ok) throw new Error("Error al actualizar");
+
+    const actualizados = await (await fetch("http://localhost:3000/api/componentes")).json();
+    renderizarTabla(actualizados);
+  } catch (err) {
+    console.error("❌ Error actualizando componente:", err);
+    alert("Error al actualizar el componente.");
+  }
+}
+
+  // DELETE: eliminar componente
+  async function eliminar(id) {
+    const confirmacion = confirm("¿Estás seguro de que quieres eliminar este componente?");
+    if (!confirmacion) return;
+
+    try {
+      const respuesta = await fetch(`http://localhost:3000/api/componentes/${id}`, {
+        method: "DELETE"
+      });
+
+      if (!respuesta.ok) throw new Error("Error al eliminar");
+
+      const actualizados = await (await fetch("http://localhost:3000/api/componentes")).json();
+      renderizarTabla(actualizados);
+    } catch (err) {
+      console.error("❌ Error eliminando componente:", err);
+      alert("Error al eliminar el componente.");
+    }
+  }
+</script>
+</body>
+</html>
+
