@@ -1,6 +1,9 @@
 const express = require('express');
+<<<<<<< HEAD
 const cors = require('cors'); // Importado
 const sqlite3 = require('sqlite3').verbose(); // Ok, aunque usas Sequelize abajo
+=======
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 const app = express();
 const port = 3000;
 const path = require('path');
@@ -12,6 +15,7 @@ const sequelize = require('./database/database');
 const categoriasRoutes = require('./rutas/categorias');
 const componentesRoutes = require('./rutas/componentes');
 
+<<<<<<< HEAD
 // --- AÑADE CORS AQUÍ ---
 // Opción A: Permitir todas las peticiones (más simple para desarrollo)
 app.use(cors());
@@ -23,11 +27,21 @@ app.use(express.json());
 
 // Montar los enrutadores bajo el prefijo /api
 // ESTO SIGNIFICA QUE TUS RUTAS SON /api/categorias, /api/componentes, etc.
+=======
+// Middleware para parsear JSON
+app.use(express.json());
+
+// Montar los enrutadores bajo el prefijo /api
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 app.use('/api', categoriasRoutes);
 app.use('/api', componentesRoutes);
 
 // Sincronizar los modelos con la base de datos
+<<<<<<< HEAD
 sequelize.sync({ force: false })
+=======
+sequelize.sync({ force: false }) // 'force: true' recreará las tablas (cuidado en producción)
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
   .then(() => console.log('Modelos sincronizados con la base de datos.'))
   .catch(err => console.error('Error al sincronizar los modelos:', err));
 

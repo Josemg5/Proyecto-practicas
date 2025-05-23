@@ -11,6 +11,7 @@ const Categoria = sequelize.define('Categoria', {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
+<<<<<<< HEAD
   },
   // Si quieres el campo 'descripcion' que tenías en tu .schema, añádelo aquí:
   // descripcion: {
@@ -20,6 +21,11 @@ const Categoria = sequelize.define('Categoria', {
 }, {
   tableName: 'categorias', // 
   timestamps: false
+=======
+  }
+}, {
+  timestamps: false // Opcional: si no quieres las columnas createdAt y updatedAt
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 });
 
 module.exports = Categoria;

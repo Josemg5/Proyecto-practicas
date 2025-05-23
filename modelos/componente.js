@@ -1,6 +1,11 @@
 const { DataTypes } = require('sequelize');
+<<<<<<< HEAD
 const sequelize = require('../database/database'); // Tu instancia de Sequelize
 const Categoria = require('./categoria');     // Importa el modelo Categoria
+=======
+const sequelize = require('../database/database');
+const Categoria = require('./categoria'); // Importamos el modelo de Categoría para la relación
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 
 const Componente = sequelize.define('Componente', {
   id: {
@@ -10,6 +15,7 @@ const Componente = sequelize.define('Componente', {
   },
   nombre: {
     type: DataTypes.STRING,
+<<<<<<< HEAD
     allowNull: false // El nombre sigue siendo obligatorio
   },
   descripcion_tecnica: { // Nuevo campo, lo hacemos opcional
@@ -50,5 +56,28 @@ Categoria.hasMany(Componente, {
   foreignKey: 'categoriaId', // La clave foránea en el modelo Componente
   as: 'componentes'         // Un alias opcional
 });
+=======
+    allowNull: false
+  },
+  precio: {
+    type: DataTypes.FLOAT,
+    allowNull: false
+  },
+  categoriaId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Categoria,
+      key: 'id'
+    }
+  }
+}, {
+  timestamps: false // Opcional: si no quieres las columnas createdAt y updatedAt
+});
+
+// Definimos la relación con la tabla de Categorías
+Componente.belongsTo(Categoria, { foreignKey: 'categoriaId' });
+Categoria.hasMany(Componente, { foreignKey: 'categoriaId' });
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 
 module.exports = Componente;

@@ -1,13 +1,26 @@
+<<<<<<< HEAD
 const Componente = require('../modelos/componente'); // Asegúrate que el modelo Componente está importado
+=======
+// Importa el modelo del componente (aún no creado)
+const Componente = require('../modelos/componente');
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 
 // Función para obtener todos los componentes
 async function obtenerTodosLosComponentes(req, res) {
   try {
+<<<<<<< HEAD
     const componentes = await Componente.findAll();
     res.status(200).json(componentes);
   } catch (error) {
     console.error("Error al obtener los componentes:", error);
     res.status(500).json({ error: 'No se pudieron obtener los componentes', detalles: error.message });
+=======
+    const componentes = await Componente.findAll(); // Suponemos que el modelo tiene un método findAll
+    res.status(200).json(componentes);
+  } catch (error) {
+    console.error("Error al obtener los componentes:", error);
+    res.status(500).json({ error: 'No se pudieron obtener los componentes' });
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
   }
 }
 
@@ -15,7 +28,11 @@ async function obtenerTodosLosComponentes(req, res) {
 async function obtenerComponentePorId(req, res) {
   const { id } = req.params;
   try {
+<<<<<<< HEAD
     const componente = await Componente.findByPk(id);
+=======
+    const componente = await Componente.findByPk(id); // Suponemos que el modelo tiene un método findByPk
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
     if (componente) {
       res.status(200).json(componente);
     } else {
@@ -23,6 +40,7 @@ async function obtenerComponentePorId(req, res) {
     }
   } catch (error) {
     console.error(`Error al obtener el componente con ID ${id}:`, error);
+<<<<<<< HEAD
     res.status(500).json({ error: 'No se pudo obtener el componente', detalles: error.message });
   }
 }
@@ -77,10 +95,28 @@ async function crearComponente(req, res) {
   }
 }
 // --- FIN DE LA FUNCIÓN MODIFICADA ---
+=======
+    res.status(500).json({ error: 'No se pudo obtener el componente' });
+  }
+}
+
+// Función para crear un nuevo componente
+async function crearComponente(req, res) {
+  const { nombre, precio, categoriaId } = req.body;
+  try {
+    const nuevoComponente = await Componente.create({ nombre, precio, categoriaId }); // Suponemos un método create
+    res.status(201).json(nuevoComponente);
+  } catch (error) {
+    console.error("Error al crear el componente:", error);
+    res.status(500).json({ error: 'No se pudo crear el componente' });
+  }
+}
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
 
 // Función para actualizar un componente existente
 async function actualizarComponente(req, res) {
   const { id } = req.params;
+<<<<<<< HEAD
   // Extrae todos los campos que se pueden actualizar
   const { nombre, precio, categoriaId, descripcion_tecnica, marca_modelo } = req.body;
 
@@ -108,6 +144,20 @@ async function actualizarComponente(req, res) {
   } catch (error) {
     console.error(`Error al actualizar el componente con ID ${id}:`, error);
     res.status(500).json({ error: 'No se pudo actualizar el componente', detalles: error.message, camposInvalidos: error.errors });
+=======
+  const { nombre, precio, categoriaId } = req.body;
+  try {
+    const componenteActualizado = await Componente.update({ nombre, precio, categoriaId }, { where: { id } }); // Suponemos un método update
+    if (componenteActualizado[0] > 0) {
+      const componente = await Componente.findByPk(id);
+      res.status(200).json(componente);
+    } else {
+      res.status(404).json({ error: 'Componente no encontrado' });
+    }
+  } catch (error) {
+    console.error(`Error al actualizar el componente con ID ${id}:`, error);
+    res.status(500).json({ error: 'No se pudo actualizar el componente' });
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
   }
 }
 
@@ -115,7 +165,11 @@ async function actualizarComponente(req, res) {
 async function eliminarComponente(req, res) {
   const { id } = req.params;
   try {
+<<<<<<< HEAD
     const resultado = await Componente.destroy({ where: { id } });
+=======
+    const resultado = await Componente.destroy({ where: { id } }); // Suponemos un método destroy
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
     if (resultado > 0) {
       res.status(204).send(); // 204 No Content
     } else {
@@ -123,7 +177,11 @@ async function eliminarComponente(req, res) {
     }
   } catch (error) {
     console.error(`Error al eliminar el componente con ID ${id}:`, error);
+<<<<<<< HEAD
     res.status(500).json({ error: 'No se pudo eliminar el componente', detalles: error.message });
+=======
+    res.status(500).json({ error: 'No se pudo eliminar el componente' });
+>>>>>>> 32cbab735d4ae7ecfde9eb41bf5d7aa45af1e30f
   }
 }
 
